@@ -1,0 +1,50 @@
+#### Install Nginx on pathnex server
+---
+- name: Install Nginx on pathnex server
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
+
+
+
+#### Creating EC2 instance
+provider "aws"{region = "ap-south-1"}
+resource "aws_instance" "PathnexEC2" {ami = "ami-0cd4165aeb4c1a32d" instance_type = "c5.xlarge"
+tags = {Name = "Pathnex-EC2" }}
+
+##### Kubernetes Task — Create Nginx Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pathnex-pod
+spec:
+  containers:
+    - name: web
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+###Shell Script — Print Date & Hostname
+#!/bin/bash
+
+echo "Date: $(date)"
+echo "Hostname: $(hostname)"
+
+###Git Integration
+### Jenkins Pipeline — Checkout Git
+pipeline { agent any stages { stage('Checkout') { steps { git branch: 'main', url: 'https://github.com/Pathnex/sample-java-app.git' } } stage('List Files') { steps { sh 'ls -la' } } } }
+
+###GitLab CI — Checkout Git
+stages:
+  - checkout
+
+git-checkout:
+  stage: checkout
+  script:
+    - git clone https://github.com/Pathnex/sample-java-app.git
+    - cd sample-java-app
+    - ls -la
